@@ -1,0 +1,75 @@
+{
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -box-sizing: border-box;
+}
+
+  html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: "Comic Sans MS", cursive, sans-serif;
+  }
+
+  header {
+    text-align: center;
+    color: #858585;
+  }
+
+  input {
+    width: 100%;
+  }
+
+  #map {
+    height: 100%;
+  }
+
+  .container {
+    height: 90%;
+    border-style: solid;
+      border-width: 5px;
+      border-color: #858585;
+    background-color: #858585;
+  }
+
+  .rowHeight {
+    height: 100%;
+  }
+
+  .colPadding {
+    padding: 0;
+  }
+
+  .placeButton {
+    width: 100%;
+  }
+
+  .error {
+    color: white;
+  }
+
+  @media (max-width: 767px) {
+    #map {
+      height: 75%;
+    }
+  }
+
+  /* make sidebar nav vertical */
+  @media (min-width: 768px) {
+    .sidebar-nav .navbar .navbar-collapse {
+      padding: 0;
+      max-height: none;
+    }
+        .sidebar-nav .navbar ul {
+          float: none;
+          display: block;
+        }
+        .sidebar-nav .navbar li {
+          float: none;
+          display: block;
+        }
+        .sidebar-nav .navbar li button {
+          padding-top: 12px;
+          padding-bottom: 12px;
+        }
+      }

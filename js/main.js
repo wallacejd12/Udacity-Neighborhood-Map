@@ -1,4 +1,9 @@
-"use strict"
+/*global google */
+/*global $ */
+/*global ko */
+/*global oauthSignature */
+
+"use strict";
 
 /* Sites Used
 ** http://stackoverflow.com/questions/16266772/google-maps-multiple-custom-markers
@@ -12,7 +17,6 @@
 
 // Global var to store Google Map data
 var infowindow;
-var service;
 var map;
 
 // Array to store Google Marker data
@@ -36,15 +40,15 @@ var PLACES_LENGTH = YELP_IDS.length;
 var storeParameters = [];
 storeParameters.length = PLACES_LENGTH;
 
-// Array to store the Ajax request for each place on the map
-var jcRequests = [];
+// Array to store the settings for each place on the map
+var settingsForEach = [];
 
 /* Variable to store the error message for posting when the Yelp
 *  AJAX request fails.
 */
 var $errorMessage = $('.error');
 
-// Generatre number for Yelp oauth_nonce variable
+// Generate number for Yelp oauth_nonce variable
 function nonce_generate() {
     return (Math.floor(Math.random() * 1e12).toString());
 }
@@ -61,7 +65,7 @@ function setParametersForEach (i) {
         oauth_signature_method: 'HMAC-SHA1',
         oauth_version : '1.0',
         callback: 'cb',
-        id: YELP_IDS[i],
+        id: YELP_IDS[i]
     };
 
     var yelp_url = YELP_BASE_URL + 'business/' + YELP_IDS[i];
@@ -91,23 +95,21 @@ function setSettingsForEach (i) {
         async: true,
         cache: true,
         dataType: 'jsonp',
-        timeout: 5000 /* Added this since fail does not work for
-                       * for cross domain requests. This seem to
-                       * be the best solution that I could find
-                       */
-    }
+        timeout: 5000,
+        error: function (parsedjson, textStatus, errorThrown) {
+            console.log("Yelp Failed");
+            $errorMessage.append('Yelp Request failed for a Place of Interest <br> ');
+        }
+    };
 
-    // Make AJAX request
-    var request = $.ajax(settings);
-
-    /* Store request in an array to reference when creating
-    * Map Markers and the list in view Model
+    /* Store settings in an array to reference when making
+    * the AJAX request
     */
-    jcRequests.push(request);
+    settingsForEach.push(settings);
 
 }//End setSettingsForEach
 
-// Set settings and make AJAX request
+// Set settings for each place
 for(var i = 0; i < PLACES_LENGTH; i++) {
     setSettingsForEach(i);
 }
@@ -122,63 +124,62 @@ function initMap() {
     });
 
     infowindow = new google.maps.InfoWindow();
-    service = new google.maps.places.PlacesService(map);
-
-}// End initMap
-
-// Call function to initiate Google Map
-initMap();
 
 /* Add an event listener to the Google Map so it recenters when
 *   a user resizes the window
 */
-google.maps.event.addDomListener(window, 'resize', function() {
+map.addListener(window, 'resize', function() {
     var center = map.getCenter();
     google.maps.event.trigger(map, "resize");
     map.setCenter(center);
 });
 
+}// End initMap
+
 /* Function called below to add markers to the map, set infowindow
 *  content and add markers to the markers array to be referenced
 *  in the View Model
 */
-function addMarker(location, title, rating, review, phone, url) {
+function addMarker(location, title, l) {
+    var contentString, place, atitle, alocation, rating, review, phone, url;
     var marker = new google.maps.Marker({
         position: location,
         map: map,
         title: title,
-        rating: rating,
-        review: review,
-        phone: phone,
-        url: url,
-        animation: google.maps.Animation.DROP,
+        animation: google.maps.Animation.DROP
     });
 
-    google.maps.event.addListener(marker, 'click', function() {
-        var contentString = '<div id="content">' + '<strong>' + title + '</strong>' + ' ' + '<img src="' + rating + '">' + ' ' + '<a href="tel:' + phone + '" style="text-decoration: none;"> <font color="black">' + phone + '</font> </a> <br>' + review + '<br>' + '<a href="' + url + '" target="_blank">View on Yelp</a></div>';
+    marker.addListener('click', toggleBounce);
 
-        infowindow.setContent(contentString);
-        infowindow.open(map, this);
+    function toggleBounce() {
+        if (marker.getAnimation() !== null) {
+            marker.setAnimation(null);
+        } else {
+            marker.setAnimation(google.maps.Animation.BOUNCE);
+        }
+    }
+
+    marker.addListener('click', function() {
+
+        var request = $.ajax(l);
+        request.success(function(results) {
+            place = results;
+            atitle = place.name;
+            alocation = {lat: place.location.coordinate.latitude, lng: place.location.coordinate.longitude};
+            rating = place.rating_img_url_small;
+            review = place.snippet_text;
+            phone = place.phone;
+            url = place.url;
+
+            contentString = '<div id="content">' + '<strong>' + atitle + '</strong>' + ' ' + '<img src="' + rating + '">' + ' ' + '<a href="tel:' + phone + '" style="text-decoration: none;"> <font color="black">' + phone + '</font> </a> <br>' + review + '<br>' + '<a href="' + url + '" target="_blank">View on Yelp</a></div>';
+
+            infowindow.setContent(contentString);
+            infowindow.open(map, marker);
+        });
     });
-        markers.push(marker);
+
+    markers.push(marker);
 }// End addMarker
-
-/*  Get ajax requests results and use those results to set the
-*   properties for each marker
-*/
-$.each( jcRequests, function(i, l){
-    l.success(function (results) {
-        var place = results;
-        var location = {lat: place.location.coordinate.latitude, lng: place.location.coordinate.longitude};
-        var title = place.name;
-        var rating = place.rating_img_url_small;
-        var review = place.snippet_text;
-        var phone = place.phone;
-        var url = place.url;
-        addMarker(location, title, rating, review, phone, url);
-    });
-});
-
 
 /*** View Model ***/
 
@@ -190,14 +191,14 @@ function viewModel () {
     self.selectedItems = ko.observableArray(); //Observable array to store selected places
     self.items = ko.observableArray(); //Observable array to store all the places
     self.addItems = function () {
-       $.each( jcRequests, function( i, l ){
-        // Access AJAX results and add them to the items observable array
-            l.success(function (results) {
-                self.items.push(results);
-            });
-            // Post a message when the AJAX request fails for a place
-            l.fail(function(x, t, m) {
-                $errorMessage.append('Yelp Request failed for a Place of Interest <br> ');
+       $.each( settingsForEach, function( i, l ){
+            var request = $.ajax(l);
+            request.success(function(results) {
+                var place = results;
+                var title = place.name;
+                var location = {lat: place.location.coordinate.latitude, lng: place.location.coordinate.longitude};
+                self.items.push(place);
+                addMarker(location, title, l);
             });
         });
     };
@@ -223,10 +224,8 @@ function viewModel () {
     self.selectedInfoWindow = function (data, event) {
             for(var j = 0; j < PLACES_LENGTH; j++) {
                 if(event.toElement.innerText === self.placeMarkers()[j].title) {
-                    self.placeMarkers()[j].setAnimation(google.maps.Animation.DROP);
                     google.maps.event.trigger(self.placeMarkers()[j], 'click');
                 }
-
             }
     };
 }// End viewModel
@@ -251,7 +250,6 @@ hamiltonParkJC.filteredItems = ko.dependentObservable(function() {
 
 // Subscribe to the View Model's search function to filter the map markers
 hamiltonParkJC.query.subscribe(hamiltonParkJC.search);
-
 
 ko.applyBindings(hamiltonParkJC);
 

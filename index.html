@@ -6,85 +6,8 @@
     <meta charset="utf-8">
     <!-- Latest compiled and minified Bootstrap CSS -->
     <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
-    <!-- Inlined CSS based on PageSpeed feedback -->
-    <style>
-      {
-        -webkit-box-sizing: border-box;
-        -moz-box-sizing: border-box;
-        -box-sizing: border-box;
-      }
-
-      html, body {
-              height: 100%;
-              margin: 0;
-              padding: 0;
-              font-family: "Comic Sans MS", cursive, sans-serif;
-            }
-
-      header {
-        text-align: center;
-        color: #858585;
-      }
-
-      input {
-        width: 100%;
-      }
-
-      #map {
-        height: 100%;
-      }
-
-      .container {
-        height: 90%;
-        border-style: solid;
-          border-width: 5px;
-          border-color: #858585;
-        background-color: #858585;
-      }
-
-      #rowHeight {
-        height: 100%;
-      }
-
-      #colPadding {
-        padding: 0;
-      }
-
-      .placeButton {
-        width: 100%;
-      }
-
-      .error {
-        color: white;
-      }
-
-      @media (max-width: 767px) {
-        #map {
-          height: 75%;
-        }
-      }
-
-      /* make sidebar nav vertical */
-      @media (min-width: 768px) {
-        .sidebar-nav .navbar .navbar-collapse {
-          padding: 0;
-          max-height: none;
-        }
-        .sidebar-nav .navbar ul {
-          float: none;
-          display: block;
-        }
-        .sidebar-nav .navbar li {
-          float: none;
-          display: block;
-        }
-        .sidebar-nav .navbar li button {
-          padding-top: 12px;
-          padding-bottom: 12px;
-        }
-      }
-
-      </style>
+    <!-- CSS Style sheet -->
+    <link rel="stylesheet" href="css/style.css">
   </head>
 
   <body>
@@ -94,10 +17,10 @@
 
     <div class="container">
 
-      <div class="row" id="rowHeight">
-        <div class="col-sm-3" id="colPadding">
+      <div class="row rowHeight">
+        <div class="col-sm-3 colPadding">
           <div class="sidebar-nav">
-            <div class="navbar navbar-default" role="navigation" id="navigationDiv">
+            <div class="navbar navbar-default" role="navigation">
               <input placeholder="Search…" type="search" name="q" data-bind="value: query, valueUpdate: 'keyup'" autocomplete="off">
 
               <div class="navbar-header" id="threeLines">
@@ -111,7 +34,7 @@
               </div>
 
               <div class="navbar-collapse collapse sidebar-navbar-collapse">
-                <ul id="navigationDiv" class="nav navbar-nav" data-bind="foreach: filteredItems, click: $root.selectedInfoWindow">
+                <ul  class="nav navbar-nav" data-bind="foreach: filteredItems, click: $root.selectedInfoWindow">
                   <li ><button data-bind="text: name" class="placeButton"></button></li>
                 </ul>
               </div><!--End nav-collapse -->
@@ -125,19 +48,17 @@
 
       </div><!-- End row -->
     </div><!-- End container -->
-  </body>
-
+    <!-- Knockout JS -->
   <script src="http://ajax.aspnetcdn.com/ajax/knockout/knockout-3.3.0.js"></script>
   <!-- jQuery library -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
   <!-- Latest compiled Bootstrap JavaScript -->
   <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-  <!-- Google Maps Places Service -->
-  <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAIv1fYsiIAoMB-Idfuww68CInenfb4NwA&libraries=places"></script>
+  <!-- Google Maps Places Service-->
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAIv1fYsiIAoMB-Idfuww68CInenfb4NwA&callback=initMap"></script>
   <!-- oauth Signature for Yelp API -->
   <script src="js/oauth-signature.js"></script>
   <!-- Main javascript file > -->
   <script src="js/main.js"></script>
-
-
+  </body>
 </html>

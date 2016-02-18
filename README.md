@@ -10,3 +10,4 @@ Installation:
 -Go to https://github.com/wallacejd12/udacityneighborhoodmap
 -Download copies of all files and folders
 -Open the index.html file to begin viewing the neighborhood map
+
