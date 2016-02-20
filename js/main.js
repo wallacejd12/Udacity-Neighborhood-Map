@@ -5,6 +5,7 @@
 
 "use strict";
 
+
 /* Sites Used
 ** http://stackoverflow.com/questions/16266772/google-maps-multiple-custom-markers
 ** http://jsfiddle.net/johnpapa/6FCEe/
@@ -42,11 +43,6 @@ storeParameters.length = PLACES_LENGTH;
 
 // Array to store the settings for each place on the map
 var settingsForEach = [];
-
-/* Variable to store the error message for posting when the Yelp
-*  AJAX request fails.
-*/
-var $errorMessage = $('.error');
 
 // Generate number for Yelp oauth_nonce variable
 function nonce_generate() {
@@ -95,11 +91,7 @@ function setSettingsForEach (i) {
         async: true,
         cache: true,
         dataType: 'jsonp',
-        timeout: 5000,
-        error: function (parsedjson, textStatus, errorThrown) {
-            console.log("Yelp Failed");
-            $errorMessage.append('Yelp Request failed for a Place of Interest <br> ');
-        }
+        timeout: 5000
     };
 
     /* Store settings in an array to reference when making
@@ -114,6 +106,9 @@ for(var i = 0; i < PLACES_LENGTH; i++) {
     setSettingsForEach(i);
 }
 
+function googleError () {
+    alert("Google Maps API Failed to Load.");
+}
 // Function to initiate the Google Map
 function initMap() {
     //add map, the type of map
@@ -156,6 +151,9 @@ function addMarker(location, title, l) {
             marker.setAnimation(null);
         } else {
             marker.setAnimation(google.maps.Animation.BOUNCE);
+            setTimeout(function() {
+                marker.setAnimation(null)
+            }, 2000);
         }
     }
 
@@ -170,11 +168,12 @@ function addMarker(location, title, l) {
             review = place.snippet_text;
             phone = place.phone;
             url = place.url;
-
             contentString = '<div id="content">' + '<strong>' + atitle + '</strong>' + ' ' + '<img src="' + rating + '">' + ' ' + '<a href="tel:' + phone + '" style="text-decoration: none;"> <font color="black">' + phone + '</font> </a> <br>' + review + '<br>' + '<a href="' + url + '" target="_blank">View on Yelp</a></div>';
-
             infowindow.setContent(contentString);
             infowindow.open(map, marker);
+        });
+        request.error(function() {
+            infowindow.setContent("Yelp API Failed to Load.")
         });
     });
 
@@ -190,6 +189,7 @@ function viewModel () {
     self.placeMarkers = ko.observableArray(markers); //Observable array to store markers
     self.selectedItems = ko.observableArray(); //Observable array to store selected places
     self.items = ko.observableArray(); //Observable array to store all the places
+    self.message = ko.observable();
     self.addItems = function () {
        $.each( settingsForEach, function( i, l ){
             var request = $.ajax(l);
@@ -199,6 +199,9 @@ function viewModel () {
                 var location = {lat: place.location.coordinate.latitude, lng: place.location.coordinate.longitude};
                 self.items.push(place);
                 addMarker(location, title, l);
+            });
+            request.error(function() {
+                self.message("Yelp API Failed to Load");
             });
         });
     };
@@ -210,7 +213,6 @@ function viewModel () {
             }
             return;
         }
-
         $.each( self.items(), function( i, l ){
             if(l.name.toLowerCase().indexOf(value.toLowerCase()) >= 0) {
                 self.placeMarkers()[i].setVisible(true);
@@ -222,11 +224,11 @@ function viewModel () {
     };
     // Function to open the infoWindow of the place selected from the list
     self.selectedInfoWindow = function (data, event) {
-            for(var j = 0; j < PLACES_LENGTH; j++) {
-                if(event.toElement.innerText === self.placeMarkers()[j].title) {
-                    google.maps.event.trigger(self.placeMarkers()[j], 'click');
-                }
+        for(var j = 0; j < PLACES_LENGTH; j++) {
+            if(event.toElement.innerText === self.placeMarkers()[j].title) {
+                google.maps.event.trigger(self.placeMarkers()[j], 'click');
             }
+        }
     };
 }// End viewModel
 
