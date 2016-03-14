@@ -1,6 +1,6 @@
 # Project #5: for Udacity's Front-End Nanodegree
 
-**Title**: Neighborhood Map
+**Title**: Neighborhood Map <br />
 **Author**: James Wallace
 **Date**: November 23, 2015
 
