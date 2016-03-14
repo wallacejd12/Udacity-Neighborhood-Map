@@ -17,6 +17,6 @@ You will develop a single page application featuring a map of your neighborhood 
 **Option 2**
 
 1. Go to [https://github.com/wallacejd12/Udacity-Neighborhood-Map](https://github.com/wallacejd12/Udacity-Neighborhood-Map)
-2. Download copies of all files and folders
-3. Open the index.html file to begin viewing the neighborhood map
+2. Download all files and folders.
+3. Open the index.html file to begin viewing the neighborhood map.
 
