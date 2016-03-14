@@ -1,4 +1,4 @@
-# Project #5: for Udacity's Front-End Nanodegree
+# Project #5 for Udacity's Front-End Nanodegree
 
 **Title**: Neighborhood Map <br />
 **Author**: James Wallace  <br />
