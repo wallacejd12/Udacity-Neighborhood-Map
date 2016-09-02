@@ -225,7 +225,7 @@ function viewModel () {
     // Function to open the infoWindow of the place selected from the list
     self.selectedInfoWindow = function (data, event) {
         for(var j = 0; j < PLACES_LENGTH; j++) {
-            if(event.toElement.innerText === self.placeMarkers()[j].title) {
+            if(event.originalEvent.target.innerText === self.placeMarkers()[j].title) {
                 google.maps.event.trigger(self.placeMarkers()[j], 'click');
             }
         }
